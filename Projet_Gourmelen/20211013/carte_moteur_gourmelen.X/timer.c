@@ -37,8 +37,14 @@ T1CONbits.TCKPS = 0b00; //Prescaler
 //01 = 1:8 prescale value
 //00 = 1:1 prescale value
 T1CONbits.TCS = 0; //clock source = internal clock
-PR1 = 6666.67;
 
+/*PR1 pour 50kHz*/
+PR1=800;
+        
+/* Valeurs de PR1 pour 6kHz*/
+ /* PR1 = 0b1101000001011 : binaire
+PR1=6666,667 : decimal
+PR1=1A0B : hexadecimal*/
 IFS0bits.T1IF = 0; // Clear Timer Interrupt Flag
 IEC0bits.T1IE = 1; // Enable Timer interrupt
 T1CONbits.TON = 1; // Enable Timer
