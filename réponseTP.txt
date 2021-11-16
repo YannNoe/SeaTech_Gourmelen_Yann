@@ -1,0 +1,8 @@
+Télémètres infrarouge branchés sur l’ADC
+
+3.2 pont diviseur -> on lit 1280 sur la valeur d'un capteur or 1280*3.2=4096=2^12 donc c'est bon car les capteurs codent sur 12 bits.
+
+
+40 cm -> valeur 292 
+30 cm -> valeur 375
+20 cm -> valeur 438

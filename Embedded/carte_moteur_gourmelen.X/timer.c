@@ -30,7 +30,7 @@ unsigned char toggle = 0;
 
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void) { // là on travaille avec le T3 -> on appelle toutes les fonctions qui l'utilise
     IFS0bits.T3IF = 0; // Clear Timer3 Interrupt Flag
-    LED_ORANGE = !LED_ORANGE;
+    //LED_ORANGE = !LED_ORANGE;
     if (toggle == 0) {
         PWMSetSpeedConsigne(40, MOTEUR_DROIT);
         PWMSetSpeedConsigne(40, MOTEUR_GAUCHE);
