@@ -6,10 +6,9 @@
 #include "timer.h"
 #include "PWM.h"
 #include "adc.h"
+#include "Robot.h"
 
-unsigned int ADCValue0;
-unsigned int ADCValue1;
-unsigned int ADCValue2;
+
 
 int main (void){
 /***************************************************************************************************/
@@ -49,13 +48,29 @@ while(1){
        unsigned int * result = ADCGetResult();
        
        
-       float volts = ((float) result [2]) * 3.3 / 4096 * 3.2 ;
+       float volts = ((float) result[2]) * 3.3 / 4096 * 3.2 ;
        robotState.distanceTelemetreDroit = 34 /volts - 5 ;
-       volts = ((float) result [1])* 3.3 / 4096 * 3.2 ;
+       volts = ((float) result[1])* 3.3 / 4096 * 3.2 ;
        robotState.distanceTelemetreCentre = 34 / volts - 5 ;
-       volts = ((float) result [0]) *3.3 / 4096 *3.2;
+       volts = ((float) result[0]) *3.3 / 4096 * 3.2;
        robotState.distanceTelemetreGauche = 34 / volts - 5 ;
+      
+       if(robotState.distanceTelemetreGauche<=30)
+           LED_ORANGE=1;
+       else
+           LED_ORANGE=0;
        
+        //allumage led bleue si + 30cm
+       if(robotState.distanceTelemetreCentre<=30)
+           LED_BLEUE=1;
+       else
+           LED_BLEUE=0;
+       
+        //allumage led blanche si + 30cm
+       if(robotState.distanceTelemetreDroit<=30)
+           LED_BLANCHE=1;
+       else
+           LED_BLANCHE=0;
 
        /* 
        //allumage led orange si + 30cm
@@ -75,6 +90,7 @@ while(1){
            LED_BLANCHE=1;
        else
            LED_BLANCHE=0; */
+   
    }
 } // fin main
 }

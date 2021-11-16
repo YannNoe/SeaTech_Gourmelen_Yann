@@ -14,6 +14,10 @@ float vitesseGaucheCommandeCourante;
 float vitesseDroiteConsigne;
 float vitesseDroiteCommandeCourante;
 
+//CONVERSION VALEUR CAPTEUR EN DISTANCE
+float distanceTelemetreDroit;
+float distanceTelemetreCentre;
+float distanceTelemetreGauche;
 };
 };
 } 
