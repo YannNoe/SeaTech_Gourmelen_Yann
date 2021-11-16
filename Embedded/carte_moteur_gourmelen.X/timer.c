@@ -1,9 +1,10 @@
-#include <xc.h>
 #include "timer.h"
 #include "IO.h"
 #include "PWM.h"
 #include "ADC.h"
+#include "main.h"
 
+unsigned long timestamp;
 //Initialisation d?un timer 32 bits
 
 void InitTimer23(void) {
@@ -47,7 +48,7 @@ void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void) { // là on trava
 void InitTimer1(void) {
     //Timer1 pour horodater les mesures (1ms)
     T1CONbits.TON = 0; // Disable Timer
-    T1CONbits.TCKPS = 0b10; //Prescaler
+    //T1CONbits.TCKPS = 0b10; //Prescaler
     //11 = 1:256 prescale value
     //10 = 1:64 prescale value
     //01 = 1:8 prescale value
@@ -55,7 +56,7 @@ void InitTimer1(void) {
     T1CONbits.TCS = 0; //clock source = internal clock
 
     /*PR1 pour 150kHz*/
-    PR1 = 40000000 / 64 / 150;
+    //PR1 = 40000000 / 64 / 150;
 
     /* Valeurs de PR1 pour 6kHz*/
     /* PR1 = 0b1101000001011 : binaire
@@ -65,6 +66,8 @@ void InitTimer1(void) {
     IFS0bits.T1IF = 0; // Clear Timer Interrupt Flag
     IEC0bits.T1IE = 1; // Enable Timer interrupt
     T1CONbits.TON = 1; // Enable Timer
+    SetFreqTimer1(50); //apl de setfreqtimer1
+    
 }
 
 //Interruption du timer 1
@@ -72,7 +75,72 @@ void InitTimer1(void) {
 void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void)// là on travaille avec le T1 -> on appelle toutes les fonctions qui l'utilise
 {
     IFS0bits.T1IF = 0;
-    //LED_BLANCHE = !LED_BLANCHE;
+    LED_BLEUE = !LED_BLEUE;
     PWMUpdateSpeed();
     ADC1StartConversionSequence();
 }
+
+void SetFreqTimer1(float freq)
+{
+    T1CONbits.TCKPS = 0b00; //00 = 1:1 prescaler value
+    if(FCY /freq > 65535){
+        T1CONbits.TCKPS = 0b01; //01 = 1:8 prescaler value
+        if(FCY /freq / 8 > 65535){
+            T1CONbits.TCKPS = 0b10; //10 = 1:64 prescaler value
+            if(FCY /freq / 64 > 65535){
+                T1CONbits.TCKPS = 0b11; //11 = 1:256 prescaler value
+                PR1 = (int)(FCY / freq / 256);
+                }
+            else
+            PR1 = (int)(FCY / freq / 64);
+            }
+        else
+        PR1 = (int)(FCY / freq / 8);
+        }
+    else
+    PR1 = (int)(FCY / freq);
+}
+
+void InitTimer4(void) {
+    //Timer1 pour horodater les mesures (1ms)
+    T4CONbits.TON = 0; // Disable Timer
+ 
+    T4CONbits.TCS = 0; //clock source = internal clock
+    
+    IFS1bits.T4IF = 0; // Clear Timer Interrupt Flag
+    IEC1bits.T4IE = 1; // Enable Timer interrupt
+    
+    T4CONbits.TON = 1; // Enable Timer
+    SetFreqTimer4(1000); //apl de setfreqtimer4
+    
+}
+
+void SetFreqTimer4(float freq)
+{
+    T4CONbits.TCKPS = 0b00; //00 = 1:1 prescaler value
+    if(FCY /freq > 65535){
+        T4CONbits.TCKPS = 0b01; //01 = 1:8 prescaler value
+        if(FCY /freq / 8 > 65535){
+            T4CONbits.TCKPS = 0b10; //10 = 1:64 prescaler value
+            if(FCY /freq / 64 > 65535){
+                T4CONbits.TCKPS = 0b11; //11 = 1:256 prescaler value
+                PR1 = (int)(FCY / freq / 256);
+                }
+            else
+            PR1 = (int)(FCY / freq / 64);
+            }
+        else
+        PR1 = (int)(FCY / freq / 8);
+        }
+    else
+    PR1 = (int)(FCY / freq);
+}
+
+void __attribute__((interrupt, no_auto_psv)) _T4Interrupt(void)
+{
+    IFS1bits.T4IF = 0;
+    //LED_BLEUE = !LED_BLEUE;
+    PWMUpdateSpeed();
+    timestamp+=1;
+}
+

@@ -29,6 +29,7 @@ PWMSetSpeedConsigne(40,MOTEUR_DROIT);
 
 InitTimer1();
 InitTimer23();
+InitTimer4();
 
 LED_BLANCHE = 1;
 LED_BLEUE = 1;
@@ -61,10 +62,10 @@ while(1){
            LED_ORANGE=0;
        
         //allumage led bleue si + 30cm
-       if(robotState.distanceTelemetreCentre<=30)
+       /*if(robotState.distanceTelemetreCentre<=30)
            LED_BLEUE=1;
        else
-           LED_BLEUE=0;
+           LED_BLEUE=0;*/
        
         //allumage led blanche si + 30cm
        if(robotState.distanceTelemetreDroit<=30)
