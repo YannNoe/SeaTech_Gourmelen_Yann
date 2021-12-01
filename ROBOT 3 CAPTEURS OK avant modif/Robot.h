@@ -18,9 +18,6 @@ float vitesseDroiteCommandeCourante;
 float distanceTelemetreDroit;
 float distanceTelemetreCentre;
 float distanceTelemetreGauche;
-float distanceTelemetreGauchePlus;
-float distanceTelemetreDroitPlus;
-
 };
 };
 } 
