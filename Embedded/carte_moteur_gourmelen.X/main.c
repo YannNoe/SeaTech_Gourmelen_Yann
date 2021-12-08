@@ -94,7 +94,6 @@ void OperatingSystemLoop(void) {
             PWMSetSpeedConsigne(0, MOTEUR_DROIT);
             PWMSetSpeedConsigne(0, MOTEUR_GAUCHE);
             stateRobot = STATE_ATTENTE_EN_COURS;
-
         case STATE_ATTENTE_EN_COURS:
             if (timestamp > 1000)
                 stateRobot = STATE_AVANCE;
@@ -105,7 +104,6 @@ void OperatingSystemLoop(void) {
             PWMSetSpeedConsigne(20, MOTEUR_GAUCHE);
             stateRobot = STATE_AVANCE_EN_COURS;
             break;
-            
         case STATE_AVANCE_EN_COURS:
             SetNextRobotStateInAutomaticMode();
             break;
@@ -114,8 +112,17 @@ void OperatingSystemLoop(void) {
             PWMSetSpeedConsigne(20, MOTEUR_DROIT);
             PWMSetSpeedConsigne(0, MOTEUR_GAUCHE);
             stateRobot = STATE_TOURNE_GAUCHE_EN_COURS;
-            break;
+            break;      
         case STATE_TOURNE_GAUCHE_EN_COURS:
+            SetNextRobotStateInAutomaticMode();
+            break;
+            
+            case STATE_TOURNE_GAUCHE_PLUS:
+            PWMSetSpeedConsigne(40, MOTEUR_DROIT);
+            PWMSetSpeedConsigne(0, MOTEUR_GAUCHE);
+            stateRobot = STATE_TOURNE_GAUCHE_EN_COURS;
+            break;     
+        case STATE_TOURNE_GAUCHE_PLUS_EN_COURS:
             SetNextRobotStateInAutomaticMode();
             break;
 
@@ -127,7 +134,16 @@ void OperatingSystemLoop(void) {
         case STATE_TOURNE_DROITE_EN_COURS:
             SetNextRobotStateInAutomaticMode();
             break;
-
+            
+            case STATE_TOURNE_DROITE_PLUS:
+            PWMSetSpeedConsigne(0, MOTEUR_DROIT);
+            PWMSetSpeedConsigne(40, MOTEUR_GAUCHE);
+            stateRobot = STATE_TOURNE_DROITE_EN_COURS;
+            break;
+        case STATE_TOURNE_DROITE_PLUS_EN_COURS:
+            SetNextRobotStateInAutomaticMode();
+            break;
+            
         case STATE_TOURNE_SUR_PLACE_GAUCHE:
             PWMSetSpeedConsigne(15, MOTEUR_DROIT);
             PWMSetSpeedConsigne(-15, MOTEUR_GAUCHE);
@@ -145,74 +161,179 @@ void OperatingSystemLoop(void) {
         case STATE_TOURNE_SUR_PLACE_DROITE_EN_COURS:
             SetNextRobotStateInAutomaticMode();
             break;
-
+            
         default:
             stateRobot = STATE_ATTENTE;
             break;
     }
 }
 
+unsigned char OBSTACLE_A_GAUCHE=0;
+unsigned char OBSTACLE_A_GAUCHE_PLUS=0;
+unsigned char OBSTACLE_A_DROITE=0;
+unsigned char OBSTACLE_A_DROITE_PLUS=0;
+unsigned char OBSTACLE_EN_FACE=0;
+
 void SetNextRobotStateInAutomaticMode() {
-    unsigned char positionObstacle = PAS_D_OBSTACLE;
+//    unsigned char positionObstacle = PAS_D_OBSTACLE;
 
     //Détermination de la position des obstacles en fonction des télémètres
     
-    if (robotState.distanceTelemetreDroitPlus < 30 &&
-            robotState.distanceTelemetreDroit > 30 &&
-            robotState.distanceTelemetreCentre > 30 &&
-            robotState.distanceTelemetreGauche > 30 &&
-            robotState.distanceTelemetreGauchePlus> 30) //Obstacle à droite plus
-        positionObstacle = OBSTACLE_A_DROITE_PLUS;
+    // Detection obstacle gauche
     
-    else if (robotState.distanceTelemetreDroit < 30 &&
-            robotState.distanceTelemetreDroitPlus > 30 &&
-            robotState.distanceTelemetreCentre > 30 &&
-            robotState.distanceTelemetreGauche > 30 &&
-            robotState.distanceTelemetreGauchePlus > 30) //Obstacle à droite
-        positionObstacle = OBSTACLE_A_DROITE;
+    if(robotState.distanceTelemetreGauche < 25)
+        OBSTACLE_A_GAUCHE = 1;
+    else
+        OBSTACLE_A_GAUCHE = 0;
     
-    else if (robotState.distanceTelemetreDroit > 30 &&
-            robotState.distanceTelemetreDroitPlus > 30 &&
-            robotState.distanceTelemetreCentre > 30 &&
-            robotState.distanceTelemetreGauche < 30 &&
-            robotState.distanceTelemetreGauchePlus > 30) //Obstacle à gauche
-        positionObstacle = OBSTACLE_A_GAUCHE;
+    // Detection obstacle gauche plus
     
-    else if (robotState.distanceTelemetreDroit > 30 &&
-            robotState.distanceTelemetreDroitPlus > 30 &&
-            robotState.distanceTelemetreCentre > 30 &&
-            robotState.distanceTelemetreGauche > 30 &&
-            robotState.distanceTelemetreGauchePlus < 30) //Obstacle à gauche plus
-        positionObstacle = OBSTACLE_A_GAUCHE_PLUS;
+    if(robotState.distanceTelemetreGauchePlus < 15)
+        OBSTACLE_A_GAUCHE_PLUS = 1;
+    else
+        OBSTACLE_A_GAUCHE_PLUS = 0;
     
-    else if (robotState.distanceTelemetreCentre < 20) //Obstacle en face
-        positionObstacle = OBSTACLE_EN_FACE;
+      // Detection obstacle droite
     
-    else if (robotState.distanceTelemetreDroit > 30 &&
-            robotState.distanceTelemetreDroitPlus > 30 &&
-            robotState.distanceTelemetreCentre > 20 &&
-            robotState.distanceTelemetreGauchePlus > 30 &&
-            robotState.distanceTelemetreGauche > 30) //pas d?obstacle
-        positionObstacle = PAS_D_OBSTACLE;
-
-    //Détermination de l?état à venir du robot
-    if (positionObstacle == PAS_D_OBSTACLE)
-        nextStateRobot = STATE_AVANCE;
+    if(robotState.distanceTelemetreDroit < 25)
+        OBSTACLE_A_DROITE = 1;
+    else
+        OBSTACLE_A_DROITE = 0;
     
-    else if (positionObstacle == OBSTACLE_A_DROITE_PLUS)
-        nextStateRobot = STATE_TOURNE_GAUCHE;
+      // Detection obstacle droite plus
     
-    else if (positionObstacle == OBSTACLE_A_DROITE)
-        nextStateRobot = STATE_TOURNE_GAUCHE;
+    if(robotState.distanceTelemetreDroitPlus < 15)
+        OBSTACLE_A_DROITE_PLUS = 1;
+    else
+        OBSTACLE_A_DROITE_PLUS = 0;
     
-    else if (positionObstacle == OBSTACLE_A_GAUCHE)
-        nextStateRobot = STATE_TOURNE_DROITE;
+    // Detection obstacle centre
     
-    else if (positionObstacle == OBSTACLE_A_GAUCHE_PLUS)
-        nextStateRobot = STATE_TOURNE_DROITE;
+    if(robotState.distanceTelemetreCentre < 30
+            )
+        OBSTACLE_EN_FACE = 1;
+    else
+        OBSTACLE_EN_FACE = 0;
     
-    else if (positionObstacle == OBSTACLE_EN_FACE)
-        nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE;
+    unsigned char code = (OBSTACLE_A_GAUCHE_PLUS<<4) ||
+            (OBSTACLE_A_GAUCHE<<3) ||
+            (OBSTACLE_EN_FACE<<2) ||
+            (OBSTACLE_A_DROITE<<1) ||
+            (OBSTACLE_A_DROITE_PLUS << 0);
+    
+    //Machine à état
+    
+    switch(code)
+    {
+    /**********************************/
+    /*CAS NUMERO 1 : OBSTACLES PARTOUT*/
+    /**********************************/
+        case 0b11111:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;
+            break;
+    /***************************************************/
+    /*CAS NUMERO 2 : OBSTACLES PARTOUT SAUF GAUCHE PLUS*/
+    /***************************************************/
+        case 0b01111:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE;
+            break;
+    /**********************************************/
+    /*CAS NUMERO 3 : OBSTACLES PARTOUT SAUF GAUCHE*/
+    /**********************************************/
+        case 0b10111:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE;
+            break;
+    /*************************************************************/
+    /*CAS NUMERO 4 : OBSTACLES PARTOUT SAUF GAUCHE ET GAUCHE PLUS*/
+    /*************************************************************/
+        case 0b00111:
+            nextStateRobot = STATE_TOURNE_GAUCHE_PLUS;
+            break;
+        case 0b11011:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;
+            break;
+        case 0b01011:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE;
+            break;
+        case 0b10011:
+            nextStateRobot = STATE_TOURNE_GAUCHE;
+            break;
+        case 0b00011:
+            nextStateRobot = STATE_TOURNE_GAUCHE;
+            break;
+        case 0b11101:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;
+            break;
+        case 0b01101:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;
+            break;
+        case 0b10101:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;
+            break;
+        case 0b00101:
+            nextStateRobot = STATE_TOURNE_GAUCHE_PLUS;
+            break;
+        case 0b11001:
+            nextStateRobot = STATE_TOURNE_DROITE;
+            break;
+        case 0b01001:
+            nextStateRobot = STATE_TOURNE_DROITE;
+            break;
+        case 0b10001:
+            nextStateRobot = STATE_AVANCE;
+            break;
+        case 0b00001:
+            nextStateRobot = STATE_TOURNE_DROITE;
+            break;
+        case 0b11110:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;
+            break;
+        case 0b01110:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;
+            break;
+        case 0b10110:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;
+            break;
+        case 0b00110:
+            nextStateRobot = STATE_TOURNE_GAUCHE_PLUS;
+            break;
+        case 0b11010:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;
+            break;
+        case 0b01010:
+            nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE;
+            break;
+        case 0b10010:
+            nextStateRobot = STATE_TOURNE_GAUCHE;
+            break;
+        case 0b00010:
+            nextStateRobot = STATE_TOURNE_GAUCHE;
+            break;
+        case 0b11100:
+            nextStateRobot = STATE_TOURNE_DROITE_PLUS;
+            break;
+        case 0b01100:
+            nextStateRobot = STATE_TOURNE_DROITE_PLUS;
+            break;
+        case 0b10100:
+            nextStateRobot = STATE_TOURNE_DROITE_PLUS;
+            break;
+        case 0b00100:
+            nextStateRobot = STATE_TOURNE_GAUCHE;
+            break;
+        case 0b11000:
+            nextStateRobot = STATE_TOURNE_DROITE;
+            break;
+        case 0b01000:
+            nextStateRobot = STATE_TOURNE_DROITE;
+            break;
+        case 0b10000:
+            nextStateRobot = STATE_TOURNE_DROITE;
+            break;
+        case 0b00000:
+            nextStateRobot = STATE_AVANCE;
+            break; 
+    }
 
     //Si l?on n?est pas dans la transition de l?étape en cours
     if (nextStateRobot != stateRobot - 1) {
